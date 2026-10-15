@@ -10,9 +10,9 @@ Light Tool Library metadata - paste into the **Add Tool** form.
 | **Tags** | Reading (provisional) |
 
 ## Checklist
-- [ ] Public repo created
-- [ ] >=1 screenshot added (required for approval)
-- [ ] Description <= 255 chars
+- [x] Public repo created (https://github.com/chairmanmortimort/Wikipedia-Light)
+- [x] >=1 screenshot added (required for approval) — docs/screenshots/, 4 real LP3 captures
+- [x] Description <= 255 chars (217)
 - [x] versionCode bumped (3)
 - [x] Built with the latest light-sdk
 

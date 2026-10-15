@@ -35,6 +35,18 @@ Accessed via the gear icon on the home screen. Toggle Show recents on or off;
 clear your recent articles list. The About page carries full attribution
 (content license, data source, tool).
 
+## Screenshots
+
+Captured on a Light Phone III running the current build:
+
+| Home | Search | Article |
+|---|---|---|
+| ![Home](docs/screenshots/home.png) | ![Search results](docs/screenshots/search-results.png) | ![Article](docs/screenshots/article.png) |
+
+| About | Recents |
+|---|---|
+| ![About](docs/screenshots/settings.png) | ![Recents expanded](docs/screenshots/recents-expanded.png) |
+
 ## What this tool deliberately does not do
 
 - No accounts, no tracking, no ads.
