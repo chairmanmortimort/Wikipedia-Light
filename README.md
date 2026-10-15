@@ -51,30 +51,16 @@ Captured on a Light Phone III running the current build:
 - No infinite feeds, recommendations, or "discover" surfaces — just the
   encyclopedia, the way LightOS intends tools to behave.
 
-## Building & sideloading
+## Install
 
-You'll need Android Studio / the Android SDK and a GitHub token with package
-read access (the SDK pulls a dependency from GitHub Packages — see the Light
-SDK scaffold README's "Grabbing a token" step). Then, from the repo root:
-
-```bash
-./gradlew :tool:assembleDebug
-```
-
-The APK lands at `tool/build/outputs/apk/debug/tool-debug.apk`. With Developer
-Options + USB debugging enabled on your Light Phone III:
-
-```bash
-adb install -r tool/build/outputs/apk/debug/tool-debug.apk
-```
+Download `WikipediaLight-v0.3.0-release.apk` from the
+[latest release](https://github.com/chairmanmortimort/Wikipedia-Light/releases/latest)
+and sideload it to your Light Phone III (Developer Options + USB debugging,
+then `adb install -r WikipediaLight-v0.3.0-release.apk`).
 
 In LightOS, allow the tool under tool settings ("Any tools" / sideload) — it'll
 warn that this one isn't Light-vetted yet, which is expected for a community
 build.
-
-`tool/lighttool.toml` targets real LightOS (`serverPackage = "com.lightos"`).
-To run against the LightOS emulator instead, switch that line to
-`com.thelightphone.sdk.emulator`.
 
 ## Notes
 
