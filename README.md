@@ -26,8 +26,6 @@ adventurous). LightOS will warn that the tool isn't vetted — that's expected.
   reopen (toggleable in About — turning it off hides the section entirely).
 - **Article view** — readable plain-text extract with section navigation
   and the full list of related articles, each tappable.
-- **Haptics** — taps give a small vibration, following the phone's system
-  haptic setting.
 
 ## Settings
 
