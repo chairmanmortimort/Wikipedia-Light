@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 /**
  * Data models for the Wikipedia REST API and MediaWiki Action API.
  * 
- * The REST API (api/rest_v1) is used for summaries and random articles.
+ * The REST API (api/rest_v1) is used for article summaries.
  * The MediaWiki Action API (w/api.php) is used for full article text extracts
  * and search, because it supports plain-text extracts and more flexible queries.
  */
@@ -27,7 +27,6 @@ data class WikiSummaryResponse(
     @SerialName("originalimage") val originalImage: WikiThumbnail? = null,
     @SerialName("content_urls") val contentUrls: WikiContentUrls? = null,
     @SerialName("lang") val lang: String = "en",
-    @SerialName("pronunciation") val pronunciation: WikiPronunciation? = null,
 ) {
     val descriptionText: String get() = description ?: ""
     val thumbnailUrl: String? get() = thumbnail?.source
@@ -39,12 +38,6 @@ data class WikiThumbnail(
     val source: String = "",
     val width: Int = 0,
     val height: Int = 0,
-)
-
-@Serializable
-data class WikiPronunciation(
-    val value: String = "",
-    val language: String = "",
 )
 
 @Serializable
@@ -101,27 +94,6 @@ data class WikiContinue(
     val continueToken: String = "",
 )
 
-// === MediaWiki Action API: Random ===
-// https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&format=json
-// Returns a random article title.
-
-@Serializable
-data class WikiRandomResponse(
-    val query: WikiRandomQuery? = null,
-)
-
-@Serializable
-data class WikiRandomQuery(
-    val random: List<WikiRandomResult> = emptyList(),
-)
-
-@Serializable
-data class WikiRandomResult(
-    val id: Int = 0,
-    val title: String = "",
-    @SerialName("ns") val namespace: Int = 0,
-)
-
 // === MediaWiki Action API: Extract (full article text) ===
 // https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&titles={title}&format=json
 // Returns plain text article content.
@@ -171,30 +143,40 @@ data class WikiLink(
     val wildcard: String? = null,
 )
 
-// === REST API: On This Day ===
-// https://en.wikipedia.org/api/rest_v1/onthisday/events/{month}/{day}
-// Returns historical events for a specific date.
+// === MediaWiki Action API: Raw wikitext (table detection) ===
+// https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&titles={title}&format=json
+// Returns the raw wikitext. We only inspect it for table markers ({| ... |}).
 
 @Serializable
-data class WikiOnThisDayResponse(
-    val events: List<WikiOnThisDayEvent> = emptyList(),
-    val selected: List<WikiOnThisDayEvent> = emptyList(),
+data class WikiRawExtractResponse(
+    val query: WikiRawExtractQuery? = null,
 )
 
 @Serializable
-data class WikiOnThisDayEvent(
-    val text: String = "",
-    val pages: List<WikiOnThisDayPage> = emptyList(),
-    val year: Int = 0,
+data class WikiRawExtractQuery(
+    val pages: Map<String, WikiRawExtractPage> = emptyMap(),
 )
 
 @Serializable
-data class WikiOnThisDayPage(
+data class WikiRawExtractPage(
+    val pageid: Int = 0,
     val title: String = "",
-    @SerialName("pageid") val pageId: Int = 0,
-    val type: String = "",
-    @SerialName("extract") val extract: String? = null,
-    val thumbnail: WikiThumbnail? = null,
+    val revisions: List<WikiRawRevision> = emptyList(),
+)
+
+@Serializable
+data class WikiRawRevision(
+    val slots: WikiRawSlots? = null,
+)
+
+@Serializable
+data class WikiRawSlots(
+    val main: WikiRawMainSlot? = null,
+)
+
+@Serializable
+data class WikiRawMainSlot(
+    @SerialName("*") val content: String = "",
 )
 
 // === Domain model ===
@@ -207,6 +189,22 @@ data class WikiArticle(
     val thumbnailUrl: String? = null,
     val originalImageUrl: String? = null,
     val links: List<String> = emptyList(),
+    val hasTable: Boolean = false,
+    val tables: List<WikiTable> = emptyList(),
 ) {
     val displayTitle: String get() = title
 }
+
+/** A single parsed row from a Wikipedia wikitext table (e.g. a filmography entry). */
+data class WikiTableRow(
+    val title: String = "",
+    val meta: String = "",
+)
+
+/** A Wikipedia wikitext table, parsed so its rows can render on LP3.
+ *  The plain-text extract silently drops these, so we parse the raw wikitext instead. */
+data class WikiTable(
+    val heading: String? = null,
+    val rows: List<WikiTableRow> = emptyList(),
+)
+

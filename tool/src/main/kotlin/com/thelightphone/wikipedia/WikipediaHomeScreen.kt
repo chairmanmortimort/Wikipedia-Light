@@ -1,23 +1,18 @@
 package com.thelightphone.wikipedia
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.thelightphone.sdk.ui.defaultKeyboardOptions
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -25,22 +20,20 @@ import com.thelightphone.sdk.InitialScreen
 import com.thelightphone.sdk.LightScreen
 import com.thelightphone.sdk.SealedLightActivity
 import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightFullscreenModal
-import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightTextInputEditor
 import com.thelightphone.sdk.ui.LightTheme
 import com.thelightphone.sdk.ui.LightThemeController
+import kotlinx.coroutines.flow.MutableStateFlow
+import com.thelightphone.sdk.ui.defaultKeyboardOptions
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.lightClickable
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
 
 @InitialScreen
 class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
@@ -56,7 +49,6 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
     override fun Content() {
         val themeColors by LightThemeController.colors.collectAsState()
         val state by viewModel.uiState.collectAsState()
-        val settings by viewModel.settings.collectAsState()
 
         LightTheme(colors = themeColors) {
             Box(
@@ -68,12 +60,10 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                     is WikipediaScreenMode.Home -> {
                         HomeContent(
                             onSearchClick = viewModel::openSearch,
-                            onRandomClick = viewModel::openRandom,
-                            onSettingsClick = viewModel::openSettings,
-                            recentArticles = state.recentArticles,
-                            showArticleOfDay = settings?.showArticleOfDay ?: true,
+                            onSettingsClick = viewModel::openAbout,
+                            recentTitles = state.recentTitles,
                             onOpenRecent = viewModel::openArticle,
-                            onArticleOfDay = viewModel::openArticleOfDay,
+                            showRecents = state.showRecents,
                         )
                     }
 
@@ -111,9 +101,9 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                             ) {
                                 LightText(
                                     text = mode.message,
-                                    variant = LightTextVariant.Copy,
+                                    variant = LightTextVariant.Detail,
                                     align = TextAlign.Center,
-                                    modifier = Modifier.padding(horizontal = 1f.gridUnitsAsDp()),
+                                    modifier = Modifier.padding(top = 2f.gridUnitsAsDp()),
                                 )
                             }
                         }
@@ -126,30 +116,29 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                             extract = mode.extract,
                             thumbnailUrl = mode.thumbnailUrl,
                             links = mode.links,
-                            leadExtract = mode.leadExtract,
+                            hasTable = mode.hasTable,
+                            tables = mode.tables,
                             isLoading = mode.isLoading,
                             onBack = viewModel::cancelSearch,
+                            onSearch = viewModel::openSearch,
                             onOpenSettings = viewModel::openAbout,
                             onOpenLink = viewModel::openLink,
-                            onRandom = viewModel::openRandom,
-                            showRandomArticle = settings?.showRandomArticle ?: true,
-                            onLongPressWord = viewModel::defineTerm,
                         )
                     }
 
                     is WikipediaScreenMode.About -> {
-                        AboutContent(onBack = viewModel::closeAbout)
+                        AboutContent(
+                            onBack = viewModel::closeAbout,
+                            onClearRecents = viewModel::openConfirmClearRecents,
+                            showRecents = state.showRecents,
+                            onToggleShowRecents = viewModel::toggleShowRecents,
+                        )
                     }
 
-                    is WikipediaScreenMode.Settings -> {
-                        SettingsContent(
-                            showRecent = mode.showRecentArticles,
-                            showArticleOfDay = mode.showArticleOfDay,
-                            showRandom = mode.showRandomArticle,
-                            onToggleRecent = viewModel::toggleShowRecentArticles,
-                            onToggleArticleOfDay = viewModel::toggleShowArticleOfDay,
-                            onToggleRandom = viewModel::toggleShowRandomArticle,
-                            onBack = viewModel::closeSettings,
+                    is WikipediaScreenMode.ConfirmClearRecents -> {
+                        ConfirmClearRecentsContent(
+                            onBack = viewModel::cancelConfirmClearRecents,
+                            onConfirm = viewModel::confirmClearRecents,
                         )
                     }
                 }
@@ -163,97 +152,73 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
             }
         }
     }
-
 }
 
 /**
- * Home screen — presents Search, Random, Article of the Day, and recently viewed articles.
+ * Home screen — gear icon top-right, "Tap to search" centered (matching the
+ * Dictionary app), and "Recents" in the bottom-left corner. Tapping "Recents"
+ * expands or collapses the recent-articles list beneath it; the list starts
+ * collapsed. When the Show recents preference is off, the Recents section is
+ * hidden entirely.
  */
 @Composable
 private fun HomeContent(
     onSearchClick: () -> Unit,
-    onRandomClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    recentArticles: List<String> = emptyList(),
-    showArticleOfDay: Boolean = true,
+    recentTitles: List<String> = emptyList(),
     onOpenRecent: (String) -> Unit = {},
-    onArticleOfDay: () -> Unit = {},
+    showRecents: Boolean = true,
 ) {
+    var recentsExpanded by remember { mutableStateOf(false) }
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(3f.gridUnitsAsDp()),
+        modifier = Modifier.fillMaxSize(),
     ) {
+        // Settings / About — pinned to the very top-right.
         LightTopBar(
             rightButton = LightBarButton.LightIcon(
                 icon = LightIcons.SETTINGS,
                 onClick = onSettingsClick,
-                contentDescription = "Settings",
+                contentDescription = "About",
             ),
-            modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+            modifier = Modifier.padding(bottom = 0.5f.gridUnitsAsDp()),
         )
 
-        // Large wordmark
-        Column(
+        // "Tap to search" — centered in the middle of the screen (matches the
+        // Dictionary app's home layout).
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 2f.gridUnitsAsDp()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
             LightText(
-                text = "Wikipedia",
-                variant = LightTextVariant.Heading,
-                align = TextAlign.Center,
-            )
-            LightText(
-                text = "Search articles or discover random facts.",
-                variant = LightTextVariant.Detail,
-                lighten = true,
-                align = TextAlign.Center,
-                modifier = Modifier.padding(top = 0.5f.gridUnitsAsDp()),
+                text = "Tap to search",
+                variant = LightTextVariant.Subheading,
+                modifier = Modifier.lightClickable { onSearchClick() },
             )
         }
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 1f.gridUnitsAsDp())
-                .padding(top = 2f.gridUnitsAsDp())
-                .verticalScroll(rememberScrollState()),
-        ) {
-            HomeMenuItem(
-                text = "Search",
-                icon = LightIcons.SEARCH,
-                onClick = onSearchClick,
-            )
-            HomeMenuItem(
-                text = "Random Article",
-                icon = LightIcons.LOOP,
-                onClick = onRandomClick,
-            )
-            if (showArticleOfDay) {
-                HomeMenuItem(
-                    text = "Article of the Day",
-                    icon = LightIcons.CIRCLE,
-                    onClick = onArticleOfDay,
-                )
-            }
-            if (recentArticles.isNotEmpty()) {
+        // "Recents" — bottom-left; tap to expand/collapse the recent list.
+        if (showRecents) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 2f.gridUnitsAsDp(), end = 2f.gridUnitsAsDp(), bottom = 2f.gridUnitsAsDp()),
+            ) {
                 LightText(
-                    text = "Recent",
-                    variant = LightTextVariant.Detail, // smaller, per user feedback
-                    modifier = Modifier.padding(top = 2f.gridUnitsAsDp(), bottom = 0.5f.gridUnitsAsDp()),
+                    text = "Recents",
+                    variant = LightTextVariant.Subheading,
+                    modifier = Modifier.lightClickable { recentsExpanded = !recentsExpanded },
                 )
-                recentArticles.forEach { title ->
-                    LightText(
-                        text = title,
-                        variant = LightTextVariant.Detail, // smaller
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .lightClickable(onClick = { onOpenRecent(title) })
-                            .padding(vertical = 1f.gridUnitsAsDp()), // tighter
-                    )
+                if (recentsExpanded) {
+                    recentTitles.forEach { title ->
+                        HomeMenuItem(
+                            text = title,
+                            icon = LightIcons.LIST,
+                            onClick = { onOpenRecent(title) },
+                            variant = LightTextVariant.Detail,
+                        )
+                    }
                 }
             }
         }
@@ -265,128 +230,25 @@ private fun HomeMenuItem(
     text: String,
     icon: com.thelightphone.sdk.ui.LightIconConfiguration,
     onClick: () -> Unit,
+    variant: LightTextVariant = LightTextVariant.Heading,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .lightClickable(onClick = onClick)
-            .padding(vertical = 1.5f.gridUnitsAsDp()),
+            .padding(vertical = 0.75f.gridUnitsAsDp()),
     ) {
         LightText(
             text = text,
-            variant = LightTextVariant.Subheading,
+            variant = variant,
         )
     }
 }
 
 /**
- * Settings screen — toggles for Recent Articles, Article of the Day, and Random Article.
- * Uses the same pattern as Weather app's SettingsContent.
- */
-@Composable
-private fun SettingsContent(
-    showRecent: Boolean,
-    showArticleOfDay: Boolean,
-    showRandom: Boolean,
-    onToggleRecent: () -> Unit,
-    onToggleArticleOfDay: () -> Unit,
-    onToggleRandom: () -> Unit,
-    onBack: () -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        LightTopBar(
-            leftButton = LightBarButton.LightIcon(
-                icon = LightIcons.BACK,
-                onClick = onBack,
-                contentDescription = "Back",
-            ),
-            center = LightTopBarCenter.Text("Settings"),
-            modifier = Modifier.padding(bottom = 1f.gridUnitsAsDp()),
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 1f.gridUnitsAsDp()),
-        ) {
-            ToggleSettingRow(
-                label = "Recent Articles",
-                enabled = showRecent,
-                onClick = onToggleRecent,
-            )
-            ToggleSettingRow(
-                label = "Article of the Day",
-                enabled = showArticleOfDay,
-                onClick = onToggleArticleOfDay,
-            )
-            ToggleSettingRow(
-                label = "Random Article",
-                enabled = showRandom,
-                onClick = onToggleRandom,
-            )
-        }
-
-        LightBottomBar(
-            items = listOf(
-                LightBarButton.LightIcon(
-                    icon = LightIcons.BACK,
-                    onClick = onBack,
-                    contentDescription = "Back",
-                ),
-            ),
-        )
-    }
-}
-
-@Composable
-private fun ToggleSettingRow(
-    label: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .lightClickable(onClick = onClick)
-            .padding(vertical = 1f.gridUnitsAsDp()),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-        ) {
-            LightText(
-                text = label,
-                variant = LightTextVariant.Copy,
-            )
-            LightIcon(
-                icon = if (enabled) LightIcons.TOGGLE_STATE_ON else LightIcons.TOGGLE_STATE_OFF,
-                size = 6f,
-            )
-        }
-    }
-}
-
-@Composable
-private fun AttributionFooter(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(4f.gridUnitsAsDp())
-            .lightClickable(onClick = onClick)
-            .padding(horizontal = 1f.gridUnitsAsDp()),
-        contentAlignment = Alignment.Center,
-    ) {
-        LightText(
-            text = "Content licensed under CC BY-SA 4.0.",
-            variant = LightTextVariant.Fine,
-            lighten = true,
-        )
-    }
-}
-
-/**
- * Search input screen using the SDK's LightTextInputEditor.
+ * Search input screen using the SDK's LightTextInputEditor — integrates with LP3
+ * hardware keyboard and supports D-pad navigation properly.
+ * Uses editorKey to force TextFieldState reset on re-entry (same pattern as Amtrak SearchScreen).
  */
 @Composable
 fun SearchInputContent(
@@ -403,10 +265,10 @@ fun SearchInputContent(
         state = textFieldState,
         onSubmit = { query -> onSearchSubmitted(query.toString()) },
         onBack = onBack,
+        keyboardOptionsFlow = MutableStateFlow(defaultKeyboardOptions()),
         modifier = modifier.fillMaxSize(),
         submitLabel = "SEARCH",
         submitIcon = LightIcons.SEARCH,
         editorKey = editorKey,
-        keyboardOptionsFlow = remember { MutableStateFlow(defaultKeyboardOptions()) },
     )
 }

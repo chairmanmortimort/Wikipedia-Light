@@ -1,59 +1,78 @@
-# Wikipedia
+# Wikipedia Light for Light Phone III
 
-A text-first Wikipedia reader for the Light Phone III. Search and read article summaries and full article text without images or scripts.
+A calm, text-first Wikipedia reader for the Light Phone III, built with the
+[Light SDK](https://github.com/lightphone/light-sdk). The **Light** variant of
+the Wikipedia tool: search articles, keep a short recents list, and read —
+nothing else. No Random Article, no On This Day — all in LightOS's monochrome,
+distraction-free style.
 
-A community tool for the [Light Phone III](https://www.thelightphone.com/), built on the official
-[light-sdk](https://github.com/lightphone/light-sdk) with Kotlin, Jetpack Compose, `LightScreen`
-and `LightViewModel`, themed with `sdk:ui`.
+This is a fork of the Light SDK repo; all tool code lives in the `tool/`
+module, which is what Light's build pipeline compiles
+(`./gradlew :tool:assembleRelease`).
 
-## Layout
+## Status
 
-```
-wikipedia/
-├── light-sdk/            # git submodule -> upstream Light SDK (pinned commit)
-├── tool/                 # the ONLY dev-owned module
-│   ├── lighttool.toml    # tool id, label, version, declared permissions
-│   ├── build.gradle.kts  # dependencies (project(":sdk:client") + light.sdk plugin)
-│   └── src/main/**       # tool source
-├── settings.gradle.kts   # grafts the submodule's SDK projects into this build
-├── build.gradle.kts      # thin root: plugin classpath + ext build knobs
-├── gradle.properties
-└── gradlew, gradle/       # wrapper
-```
+**Early community tool — not yet Light-vetted.** As of the Light SDK's July 2026
+update, there's no "easy" share path yet; Light is building the pipeline to
+sign and distribute community tools. Until then, you can **sideload the debug
+APK** onto a Light Phone III via ADB (Light's own docs say that's fine for the
+adventurous). LightOS will warn that the tool isn't vetted — that's expected.
 
-Light's containerized builder clones this repo and extracts **only**
-`tool/build.gradle.kts`, `tool/lighttool.toml`, and `tool/src/main/**`, then compiles them against
-its own pinned, sandboxed copy of the SDK. It generates `AndroidManifest.xml` from `lighttool.toml`,
-so this repo intentionally contains no hand-written manifest and never sets `applicationId`,
-`versionCode`, `versionName`, or `namespace`.
+## What this tool does
 
-## Building locally
+- **Search** — look up any Wikipedia article.
+- **Recents** — your last few opened articles, collapsed under a single
+  "Recents" label in the bottom-left; tap it to expand the list, one tap to
+  reopen (toggleable in About — turning it off hides the section entirely).
+- **Article view** — readable plain-text extract with section navigation
+  and the full list of related articles, each tappable.
+- **Haptics** — taps give a small vibration, following the phone's system
+  haptic setting.
 
-Requires JDK 17 and an Android SDK. Then:
+## Settings
 
-```
-git submodule update --init --recursive
+Accessed via the gear icon on the home screen. Toggle Show recents on or off;
+clear your recent articles list. The About page carries full attribution
+(content license, data source, tool).
+
+## What this tool deliberately does not do
+
+- No accounts, no tracking, no ads.
+- No infinite feeds, recommendations, or "discover" surfaces — just the
+  encyclopedia, the way LightOS intends tools to behave.
+
+## Building & sideloading
+
+You'll need Android Studio / the Android SDK and a GitHub token with package
+read access (the SDK pulls a dependency from GitHub Packages — see the Light
+SDK scaffold README's "Grabbing a token" step). Then, from the repo root:
+
+```bash
 ./gradlew :tool:assembleDebug
-# -> tool/build/outputs/apk/debug/tool-debug.apk
 ```
 
-The APK is signed with the shared Light dev keystore (from the submodule) for local sideloading.
-Light's build service re-signs with its own key.
+The APK lands at `tool/build/outputs/apk/debug/tool-debug.apk`. With Developer
+Options + USB debugging enabled on your Light Phone III:
 
-## Privacy
+```bash
+adb install -r tool/build/outputs/apk/debug/tool-debug.apk
+```
 
-The Wikipedia tool contacts the public Wikipedia API (wikipedia.org) to search and fetch article text. Your queries and IP address reach Wikimedia under their normal request handling. There is no account, no analytics, and no data stored on any server we operate; nothing is kept on the device beyond the current session.
+In LightOS, allow the tool under tool settings ("Any tools" / sideload) — it'll
+warn that this one isn't Light-vetted yet, which is expected for a community
+build.
 
-See PRIVACY.md for the network endpoints it contacts.
+`tool/lighttool.toml` targets real LightOS (`serverPackage = "com.lightos"`).
+To run against the LightOS emulator instead, switch that line to
+`com.thelightphone.sdk.emulator`.
 
-## Content & licensing
+## Notes
 
-- Article text: Wikipedia, CC BY-SA 4.0 (Wikimedia contributors). Attribution is
-  shown in the app's About screen.
+- Requires `android.permission.INTERNET` (Wikipedia REST + Action APIs).
+- Article text and metadata come from the Wikimedia APIs; content is licensed
+  under [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/). The app's
+  About screen credits this.
 
 ## License
 
-MIT, the same as upstream light-sdk. See [LICENSE](LICENSE).
-
-The Light Phone, LightOS, and Light Phone III are names of The Light Phone; this project is not
-affiliated with or endorsed by The Light Phone.
+MIT — see the repository [LICENSE](../../LICENSE).

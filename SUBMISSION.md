@@ -4,14 +4,24 @@ Light Tool Library metadata - paste into the **Add Tool** form.
 
 | Field | Value |
 |---|---|
-| **Title** | Wikipedia |
-| **GitHub Repo** | https://github.com/<you>/wikipedia-light |
-| **Description** | A text-first Wikipedia reader. Search articles, read full text, jump between related pages and long-press any word to look it up. No images, no scripts, no account. |
-| **Tags** | Reading *(provisional)* |
+| **Title** | Wikipedia Light |
+| **GitHub Repo** | https://github.com/chairmanmortimort/Wikipedia-Light |
+| **Description** | A calm, text-first Wikipedia reader for Light Phone III. Search any article, reopen recent reads from a collapsible Recents list, and read clean plain-text extracts with related pages. No images, no feeds, no account. |
+| **Tags** | Reading (provisional) |
 
 ## Checklist
 - [ ] Public repo created
 - [ ] >=1 screenshot added (required for approval)
 - [ ] Description <= 255 chars
-- [ ] versionCode bumped (2)
-- [ ] Built with the latest light-sdk
+- [x] versionCode bumped (3)
+- [x] Built with the latest light-sdk
+
+## Build artifact
+- **Release APK (minified + shrink + arm64-v8a):** `WikipediaLight-v0.3.0-release.apk`
+  - Path: `Wikipedia Light/v0.3.0/WikipediaLight-v0.3.0-release.apk` (4,679,795 bytes)
+  - Package: `com.thelightphone.wikipedia` / `serverPackage = com.lightos`
+  - versionName = 0.3.0, versionCode = 3 (verified inside the APK via aapt2)
+- **Debug APK:** `WikipediaLight-v0.3.0-debug.apk` (56,920,428 bytes)
+  - Path: `Wikipedia Light/v0.3.0/WikipediaLight-v0.3.0-debug.apk`
+- **Source:** `tool/src/main/kotlin/com/thelightphone/wikipedia/` (EntryPoint, Api, Models,
+  ViewModel, Home, SearchResults, ArticleScreen, light-sdk plugin)

@@ -1,8 +1,8 @@
 [tool]
 id          = "com.thelightphone.wikipedia"
-label       = "Wikipedia"
-versionCode = 2
-versionName = "1.1.0"
+label       = "Wikipedia Light"
+versionCode = 3
+versionName = "0.3.0"
 permissions = ["android.permission.INTERNET"]
 orientation = "portrait"
 # Target the real Light Phone III (LightOS).
