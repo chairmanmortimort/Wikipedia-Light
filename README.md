@@ -64,6 +64,11 @@ build.
 
 ## Notes
 
+- **SDK pin (`light-sdk` gitlink):** `69216b3cd2e6a45abab63268c4d08800a5aa33da` — latest upstream `main`. This is the
+  commit the Light Tool Library builder supports. Submissions pinned to the older
+  `ecf31d1` commit were rejected with *"The requested SDK version is below the
+  minimum or has no supported builder image. Step: Build — resolve and pull SDK builder"*;
+  aligning the gitlink to `69216b3` resolves that (verified: compiles/assembles clean).
 - Requires `android.permission.INTERNET` (Wikipedia REST + Action APIs).
 - Article text and metadata come from the Wikimedia APIs; content is licensed
   under [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/). The app's
