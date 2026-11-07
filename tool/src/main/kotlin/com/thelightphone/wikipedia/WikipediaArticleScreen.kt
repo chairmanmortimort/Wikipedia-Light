@@ -67,11 +67,6 @@ fun ArticleContent(
                 contentDescription = "Back",
             ),
             center = LightTopBarCenter.Text(title),
-            rightButton = LightBarButton.LightIcon(
-                icon = LightIcons.SETTINGS,
-                onClick = onOpenSettings,
-                contentDescription = "About",
-            ),
             modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
         )
 
