@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.thelightphone.sdk.ui.LightBarButton
-import com.thelightphone.sdk.ui.LightBottomBar
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
@@ -105,30 +104,29 @@ fun SearchResultsContent(
             }
         }
 
-        LightBottomBar(
-            items = listOf(
-                LightBarButton.LightIcon(
-                    icon = LightIcons.BACK,
-                    onClick = onBack,
-                    contentDescription = "Back",
-                ),
-            ),
-        )
+        // "More below the page fold" — right side, indicating content continues
+        // below the visible area. Removed the redundant bottom back button.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(1f.gridUnitsAsDp())
+                .align(Alignment.BottomEnd),
+        ) {
+            LightText(
+                text = "›",
+                variant = LightTextVariant.Detail,
+                color = LightThemeTokens.colors.contentSecondary,
+                modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+            )
+        }
     }
 }
 
-/**
- * Strips HTML tags and Wikipedia search-match highlights from a snippet.
- * The snippet from the API looks like:
- *   <span class="searchmatch">Troy</span> is a city in...
- */
+/** Strips HTML tags and Wikipedia search-match highlights from a snippet. */
 private fun stripHtmlSnippet(snippet: String): String {
     var result = snippet
-    // Remove span tags with searchmatch class
     result = result.replace(Regex("<span[^>]*class=\"searchmatch\"[^>]*>"), "")
-    // Remove all remaining HTML tags
     result = result.replace(Regex("<[^>]*>"), "")
-    // Decode common HTML entities
     result = result.replace("&amp;", "&")
         .replace("&lt;", "<")
         .replace("&gt;", ">")
