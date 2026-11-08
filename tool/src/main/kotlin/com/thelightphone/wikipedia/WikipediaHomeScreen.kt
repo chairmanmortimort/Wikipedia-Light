@@ -181,55 +181,26 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                 // Search editor — title states the action ("Search"), the field is
                 // the primary interaction.
                 LightTextInputEditor(
-                    title = "Search",
+                    title = "Search Wikipedia",
                     state = searchState,
                     keyboardOptionsFlow = kbFlow,
                     onSubmit = { result: CharSequence ->
-                        onSearchSubmitted(result.toString().trim())
+                        val q = result.toString().trim()
+                        if (q.isNotBlank()) {
+                            onSearchSubmitted(q)
+                        }
                     },
                     onBack = { /* stay on this screen */ },
                     submitIcon = LightIcons.SEARCH,
                     singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .background(LightThemeTokens.colors.background),
+                    leftBottomBarItem = LightBarButton.LightIcon(
+                        icon = LightIcons.SETTINGS,
+                        onClick = onSettingsClick,
+                        contentDescription = "Settings",
+                    ),
+                    modifier = Modifier.fillMaxSize(),
                 )
 
-                // Settings icon — bottom-left (native LightOS convention).
-                LightIcon(
-                    icon = LightIcons.SETTINGS,
-                    modifier = Modifier
-                        .padding(2f.gridUnitsAsDp())
-                        .lightClickable(onClick = onSettingsClick),
-                    contentDescription = "Settings",
-                )
-
-                // Recents — bottom-left, all-caps RECENTS.
-                if (showRecents) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 2f.gridUnitsAsDp(), end = 2f.gridUnitsAsDp(), bottom = 2f.gridUnitsAsDp()),
-                    ) {
-                        LightText(
-                            text = "RECENTS",
-                            variant = LightTextVariant.Subheading,
-                            modifier = Modifier.lightClickable {
-                                recentsExpanded = !recentsExpanded
-                            },
-                        )
-                        if (recentsExpanded) {
-                            recentTitles.forEach { title ->
-                                HomeMenuItem(
-                                    text = title,
-                                    icon = LightIcons.LIST,
-                                    onClick = { onOpenRecent(title) },
-                                    variant = LightTextVariant.Detail,
-                                )
-                            }
-                        }
-                    }
-                }
             }
         }
     }

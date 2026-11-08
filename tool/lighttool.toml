@@ -1,2 +1,9 @@
-cat: /Users/mattdelaus/Desktop/LP34REEL/Wikipedia: Is a directory
-cat: Light/v0.3.0/tool/lighttool.toml: No such file or directory
+[tool]
+id          = "com.thelightphone.wikipedia"
+label       = "Wikipedia Light"
+versionCode = 4
+versionName = "0.3.0"
+permissions = ["android.permission.INTERNET"]
+orientation = "portrait"
+# Target the real Light Phone III (LightOS).
+serverPackage = "com.lightos"
