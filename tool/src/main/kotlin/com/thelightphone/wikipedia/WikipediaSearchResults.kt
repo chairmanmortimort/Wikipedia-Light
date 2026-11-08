@@ -15,6 +15,7 @@ import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
+import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
 import com.thelightphone.sdk.ui.gridUnitsAsDp
@@ -110,7 +111,7 @@ fun SearchResultsContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(1f.gridUnitsAsDp())
-                .align(Alignment.BottomEnd),
+                .align(Alignment.End),
         ) {
             LightText(
                 text = "›",

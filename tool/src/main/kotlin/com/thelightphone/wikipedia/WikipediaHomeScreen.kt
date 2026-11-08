@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.text.input.TextFieldState
+import com.thelightphone.sdk.rememberKeyboardOptions
+import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +24,8 @@ import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightFullscreenModal
 import com.thelightphone.sdk.ui.LightIcon
 import com.thelightphone.sdk.ui.LightIcons
+import com.thelightphone.sdk.ui.lightClickable
+import com.thelightphone.sdk.ui.gridUnitsAsDp
 import com.thelightphone.sdk.ui.LightText
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightTextInputEditor
@@ -31,10 +34,7 @@ import com.thelightphone.sdk.ui.LightThemeController
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
 import com.thelightphone.sdk.ui.LightTopBarCenter
-import com.thelightphone.sdk.ui.defaultKeyboardOptions
 import com.thelightphone.sdk.ui.gridUnitsAsDp
-import com.thelightphone.sdk.ui.lightClickable
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @InitialScreen
 class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
@@ -169,8 +169,8 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
         showRecents: Boolean = true,
     ) {
         var recentsExpanded by remember { mutableStateOf(false) }
-        val searchState = rememberTextFieldState("")
-        val kbFlow = defaultKeyboardOptions()
+        val searchState = remember { TextFieldState("") }
+        val kbFlow = rememberKeyboardOptions()
 
         LightTheme(colors = LightThemeController.colors.value) {
             Column(
@@ -183,28 +183,26 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                 LightTextInputEditor(
                     title = "Search",
                     state = searchState,
-                    keyboardOptionsFlow = MutableStateFlow(kbFlow),
+                    keyboardOptionsFlow = kbFlow,
                     onSubmit = { result: CharSequence ->
                         onSearchSubmitted(result.toString().trim())
                     },
                     onBack = { /* stay on this screen */ },
+                    submitIcon = LightIcons.SEARCH,
+                    singleLine = true,
                     modifier = Modifier
-                        .fillMaxSize()
+                        .weight(1f)
                         .background(LightThemeTokens.colors.background),
                 )
 
                 // Settings icon — bottom-left (native LightOS convention).
-                Box(
+                LightIcon(
+                    icon = LightIcons.SETTINGS,
                     modifier = Modifier
-                        .align(Alignment.BottomStart),
-                ) {
-                    LightIcon(
-                        icon = LightIcons.SETTINGS,
-                        modifier = Modifier
-                            .lightClickable(onClick = onSettingsClick),
-                        contentDescription = "Settings",
-                    )
-                }
+                        .padding(2f.gridUnitsAsDp())
+                        .lightClickable(onClick = onSettingsClick),
+                    contentDescription = "Settings",
+                )
 
                 // Recents — bottom-left, all-caps RECENTS.
                 if (showRecents) {
@@ -265,14 +263,15 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
         onBack: () -> Unit,
         modifier: Modifier = Modifier,
     ) {
-        val textFieldState = rememberTextFieldState(currentQuery)
+        val textFieldState = remember { TextFieldState(currentQuery) }
+        val kbFlow = rememberKeyboardOptions()
 
         LightTextInputEditor(
             title = "Search Wikipedia",
             state = textFieldState,
             onSubmit = { query -> onSearchSubmitted(query.toString()) },
             onBack = onBack,
-            keyboardOptionsFlow = MutableStateFlow(defaultKeyboardOptions()),
+            keyboardOptionsFlow = kbFlow,
             modifier = modifier.fillMaxSize(),
             submitLabel = "SEARCH",
             submitIcon = LightIcons.SEARCH,
