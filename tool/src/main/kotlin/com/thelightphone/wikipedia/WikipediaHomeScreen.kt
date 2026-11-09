@@ -1,8 +1,11 @@
 package com.thelightphone.wikipedia
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -62,10 +65,58 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                         HomeContent(
                             onSearchSubmitted = { query -> viewModel.submitSearch(query) },
                             onSettingsClick = viewModel::openAbout,
+                            onRecentsClick = viewModel::openRecents,
                             recentTitles = state.recentTitles,
                             onOpenRecent = viewModel::openArticle,
                             showRecents = state.showRecents,
                         )
+                    }
+
+                    is WikipediaScreenMode.Recents -> {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            LightTopBar(
+                                leftButton = LightBarButton.LightIcon(
+                                    icon = LightIcons.BACK,
+                                    onClick = viewModel::closeRecents,
+                                    contentDescription = "Back",
+                                ),
+                                center = LightTopBarCenter.Text("Recents"),
+                                modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
+                            )
+                            if (state.recentTitles.isEmpty()) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    LightText(
+                                        text = "No recents yet.",
+                                        variant = LightTextVariant.Copy,
+                                        lighten = true,
+                                    )
+                                }
+                            } else {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 1f.gridUnitsAsDp())
+                                        .verticalScroll(rememberScrollState()),
+                                ) {
+                                    state.recentTitles.forEach { title ->
+                                        LightText(
+                                            text = title,
+                                            variant = LightTextVariant.Copy,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .lightClickable(onClick = { viewModel.openArticle(title) })
+                                                .padding(vertical = 0.75f.gridUnitsAsDp()),
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     is WikipediaScreenMode.SearchInput -> {
@@ -102,7 +153,7 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                             ) {
                                 LightText(
                                     text = mode.message,
-                                    variant = LightTextVariant.Detail,
+                                    variant = LightTextVariant.Subheading,
                                     align = TextAlign.Center,
                                     modifier = Modifier.padding(top = 2f.gridUnitsAsDp()),
                                 )
@@ -164,6 +215,7 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
     private fun HomeContent(
         onSearchSubmitted: (String) -> Unit,
         onSettingsClick: () -> Unit,
+        onRecentsClick: () -> Unit,
         recentTitles: List<String> = emptyList(),
         onOpenRecent: (String) -> Unit = {},
         showRecents: Boolean = true,
@@ -173,7 +225,7 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
         val kbFlow = rememberKeyboardOptions()
 
         LightTheme(colors = LightThemeController.colors.value) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(LightThemeTokens.colors.background),
@@ -201,6 +253,17 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                     modifier = Modifier.fillMaxSize(),
                 )
 
+                // Recents icon in bottom right.
+                if (showRecents) {
+                    LightIcon(
+                        icon = LightIcons.LIST,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 2f.gridUnitsAsDp(), bottom = 1f.gridUnitsAsDp())
+                            .clickable(onClick = { onRecentsClick() }),
+                        contentDescription = "Recents",
+                    )
+                }
             }
         }
     }

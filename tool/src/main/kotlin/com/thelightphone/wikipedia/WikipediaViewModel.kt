@@ -50,6 +50,9 @@ sealed class WikipediaScreenMode {
     /** About / attribution screen. */
     data object About : WikipediaScreenMode()
 
+    /** Recents list screen. */
+    data object Recents : WikipediaScreenMode()
+
     /** Confirmation screen before clearing recent articles. */
     data object ConfirmClearRecents : WikipediaScreenMode()
 }
@@ -237,6 +240,14 @@ class WikipediaViewModel(
     }
 
     // === About ===
+
+    fun openRecents() {
+        _uiState.value = _uiState.value.copy(mode = WikipediaScreenMode.Recents)
+    }
+
+    fun closeRecents() {
+        _uiState.value = _uiState.value.copy(mode = WikipediaScreenMode.Home)
+    }
 
     fun openAbout() {
         _uiState.value = _uiState.value.copy(mode = WikipediaScreenMode.About)

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.thelightphone.sdk.ui.LightBarButton
 import com.thelightphone.sdk.ui.LightIcons
 import com.thelightphone.sdk.ui.LightText
+import com.thelightphone.sdk.ui.LightScrollView
 import com.thelightphone.sdk.ui.LightTextVariant
 import com.thelightphone.sdk.ui.LightThemeTokens
 import com.thelightphone.sdk.ui.LightTopBar
@@ -71,13 +72,12 @@ fun SearchResultsContent(
                 )
             }
         } else {
-            Column(
+            LightScrollView(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 1f.gridUnitsAsDp())
-                    .padding(top = 0.5f.gridUnitsAsDp())
-                    .verticalScroll(rememberScrollState()),
+                    .padding(top = 0.5f.gridUnitsAsDp()),
             ) {
                 results.forEach { result ->
                     Column(
