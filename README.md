@@ -1,8 +1,7 @@
-# Wikipedia Light for Light Phone III
+# Wikipedia for Light Phone III
 
 A calm, text-first Wikipedia reader for the Light Phone III, built with the
-[Light SDK](https://github.com/lightphone/light-sdk). The **Light** variant of
-the Wikipedia tool: search articles, keep a short recents list, and read —
+[Light SDK](https://github.com/lightphone/light-sdk). Search articles, keep a short recents list, and read —
 nothing else. No Random Article, no On This Day — all in LightOS's monochrome,
 distraction-free style.
 
@@ -29,7 +28,7 @@ adventurous). LightOS will warn that the tool isn't vetted — that's expected.
 
 ## Settings
 
-Accessed via the gear icon on the home screen. Toggle Show recents on or off;
+Accessed via the gear icon in the bottom-left of the home screen. Toggle Show recents on or off;
 clear your recent articles list. The About page carries full attribution
 (content license, data source, tool).
 
@@ -53,10 +52,10 @@ Captured on a Light Phone III running the current build:
 
 ## Install
 
-Download `WikipediaLight-v0.3.0-release.apk` from the
+Download `Wikipedia-v0.3.2-release.apk` from the
 [latest release](https://github.com/chairmanmortimort/Wikipedia-Light/releases/latest)
 and sideload it to your Light Phone III (Developer Options + USB debugging,
-then `adb install -r WikipediaLight-v0.3.0-release.apk`).
+then `adb install -r Wikipedia-v0.3.2-release.apk`).
 
 In LightOS, allow the tool under tool settings ("Any tools" / sideload) — it'll
 warn that this one isn't Light-vetted yet, which is expected for a community
