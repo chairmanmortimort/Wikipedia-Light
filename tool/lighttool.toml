@@ -1,6 +1,6 @@
 [tool]
 id          = "com.thelightphone.wikipedia"
-label       = "Wikipedia Light"
+label       = "Wikipedia"
 versionCode = 5
 versionName = "0.3.2"
 permissions = ["android.permission.INTERNET"]
