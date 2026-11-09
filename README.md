@@ -52,10 +52,10 @@ Captured on a Light Phone III running the current build:
 
 ## Install
 
-Download `Wikipedia-v0.3.3-release.apk` from the
+Download `Wikipedia-v0.3.4-release.apk` from the
 [latest release](https://github.com/chairmanmortimort/Wikipedia-Light/releases/latest)
 and sideload it to your Light Phone III (Developer Options + USB debugging,
-then `adb install -r Wikipedia-v0.3.3-release.apk`).
+then `adb install -r Wikipedia-v0.3.4-release.apk`).
 
 In LightOS, allow the tool under tool settings ("Any tools" / sideload) — it'll
 warn that this one isn't Light-vetted yet, which is expected for a community
@@ -63,11 +63,12 @@ build.
 
 ## Notes
 
-- **SDK pin (`light-sdk` gitlink):** `69216b3cd2e6a45abab63268c4d08800a5aa33da` — latest upstream `main`. This is the
-  commit the Light Tool Library builder supports. Submissions pinned to the older
-  `ecf31d1` commit were rejected with *"The requested SDK version is below the
-  minimum or has no supported builder image. Step: Build — resolve and pull SDK builder"*;
-  aligning the gitlink to `69216b3` resolves that (verified: compiles/assembles clean).
+- **SDK pin (`light-sdk` gitlink):** `8d3238c` — the `v0.2.3` release tag (latest
+  published SDK). The gitlink and `sdkVersion` in `gradle.properties` must stay
+  aligned. Submissions pinned to older commits were rejected with *"The requested
+  SDK version is below the minimum or has no supported builder image. Step: Build
+  — resolve and pull SDK builder"*; pinning to `v0.2.3` resolves that (verified:
+  compiles/assembles clean).
 - Requires `android.permission.INTERNET` (Wikipedia REST + Action APIs).
 - Article text and metadata come from the Wikimedia APIs; content is licensed
   under [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/). The app's

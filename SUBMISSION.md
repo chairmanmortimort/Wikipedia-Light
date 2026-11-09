@@ -14,8 +14,8 @@ Light Tool Library metadata - paste into the **Add Tool** form.
 - [x] >=1 screenshot added (required for approval) — docs/screenshots/, 4 real LP3 captures
 - [x] Description <= 255 chars (217)
 - [x] versionCode bumped (3)
-- [x] Built with the latest `light-sdk` gitlink — `69216b3cd2e6a45abab63268c4d08800a5aa33da` (upstream `main`, the builder-supported
-  commit; compiles/assembles clean against `69216b3`)
+- [x] Built with the latest `light-sdk` gitlink — `8d3238c` (the `v0.2.3` release tag; `sdkVersion=0.2.3`
+  in `gradle.properties`; compiles/assembles clean against `v0.2.3`)
 
 ## Build artifact
 - **Release APK (minified + shrink + arm64-v8a):** `WikipediaLight-v0.3.0-release.apk`
