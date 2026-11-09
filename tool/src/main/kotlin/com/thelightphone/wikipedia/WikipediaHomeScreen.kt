@@ -243,6 +243,7 @@ class WikipediaHomeScreen(sealedActivity: SealedLightActivity) :
                         }
                     },
                     onBack = { /* stay on this screen */ },
+                    showBackButton = false,
                     submitIcon = LightIcons.SEARCH,
                     singleLine = true,
                     leftBottomBarItem = LightBarButton.LightIcon(
