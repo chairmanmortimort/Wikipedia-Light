@@ -104,22 +104,6 @@ fun SearchResultsContent(
                 }
             }
         }
-
-        // "More below the page fold" — right side, indicating content continues
-        // below the visible area. Removed the redundant bottom back button.
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(1f.gridUnitsAsDp())
-                .align(Alignment.End),
-        ) {
-            LightText(
-                text = "›",
-                variant = LightTextVariant.Detail,
-                color = LightThemeTokens.colors.contentSecondary,
-                modifier = Modifier.padding(bottom = 0.25f.gridUnitsAsDp()),
-            )
-        }
     }
 }
 
