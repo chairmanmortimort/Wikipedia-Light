@@ -52,10 +52,10 @@ Captured on a Light Phone III running the current build:
 
 ## Install
 
-Download `Wikipedia-v0.3.2-release.apk` from the
+Download `Wikipedia-v0.3.3-release.apk` from the
 [latest release](https://github.com/chairmanmortimort/Wikipedia-Light/releases/latest)
 and sideload it to your Light Phone III (Developer Options + USB debugging,
-then `adb install -r Wikipedia-v0.3.2-release.apk`).
+then `adb install -r Wikipedia-v0.3.3-release.apk`).
 
 In LightOS, allow the tool under tool settings ("Any tools" / sideload) — it'll
 warn that this one isn't Light-vetted yet, which is expected for a community
